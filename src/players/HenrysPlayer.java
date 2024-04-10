@@ -8,14 +8,14 @@ public class HenrysPlayer extends Player {
         super(name);
     }
 
-    int handValue = evaluatePlayerHand().getValue();
+    HandRanks handValue = evaluatePlayerHand();
     @Override
     protected void takePlayerTurn() {
         if(getGameState().isActiveBet()) {
             if(getGameState().getNumRoundStage() == 0 ) {
                 //there is bet pre-flop
             }
-            if(handValue >= 1 && getGameState().getNumRoundStage() < 2) {
+            if(getGameState().getNumRoundStage() < 2) {
                 allIn();
             }
         }
@@ -24,7 +24,7 @@ public class HenrysPlayer extends Player {
     @Override
     protected boolean shouldFold() {
 
-        if (evaluatePlayerHand().getValue() >= HandRanks.ROYAL_FLUSH.getValue()) {
+        if (handValue.equals(HandRanks.ROYAL_FLUSH)) { // replace "evaluatePlayerHand().getValue() >= HandRanks.ROYAL_FLUSH.getValue()" with "handValue.equals(HandRanks.ROYAL_FLUSH)"  Replace ROYAL_FLUSH with the others as needed (eg. STRAIGHT or FLUSH)
             return false;
         } else if (evaluatePlayerHand().getValue() >= HandRanks.STRAIGHT_FLUSH.getValue()) {
             return false;
