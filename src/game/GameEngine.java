@@ -68,7 +68,7 @@ public class GameEngine {
      */
     public GameEngine() {
         //0 (fullSpeed) to Integer.MAX_VALUE (~24 days)
-        gameSpeed = 350;
+        gameSpeed = 0;
         runGameContinuously = false;
 
         // Initialize the deck and shuffle it.

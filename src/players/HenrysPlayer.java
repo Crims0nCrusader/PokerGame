@@ -16,9 +16,21 @@ public class HenrysPlayer extends Player {
         if(getGameState().isActiveBet()) {
             if(getGameState().getNumRoundStage() == 0 ) {
                 //there is bet pre-flop
-            }
-            if(getGameState().getNumRoundStage() < 2) {
-                allIn();
+                if(shouldFold()) {
+                    fold();
+                }
+                if(shouldCheck()) {
+                    check();;
+                }
+                if(shouldCall()) {
+                    call();
+                }
+                if(shouldRaise()) {
+                    raise(10);
+                }
+                if(shouldAllIn()) {
+                    allIn();
+                }
             }
         }
     }
@@ -26,38 +38,36 @@ public class HenrysPlayer extends Player {
     @Override
     protected boolean shouldFold() {
         HandRanks handValue = evaluatePlayerHand();
-        if (handValue.equals(HandRanks.ROYAL_FLUSH)) { // replace "evaluatePlayerHand().getValue() >= HandRanks.ROYAL_FLUSH.getValue()" with "handValue.equals(HandRanks.ROYAL_FLUSH)"  Replace ROYAL_FLUSH with the others as needed (eg. STRAIGHT or FLUSH)
-            return false;
-        } else if (handValue.equals(HandRanks.STRAIGHT_FLUSH)) {
-            return false;
-        } else if (handValue.equals(HandRanks.FOUR_OF_A_KIND)) {
-            return false;
-        } else if (handValue.equals(HandRanks.FULL_HOUSE)) {
-            return false;
-        } else if (handValue.equals(HandRanks.FLUSH)) {
-            return false;
-        } else if (handValue.equals(HandRanks.STRAIGHT)) {
-            return false;
-        } else if (handValue.equals(HandRanks.THREE_OF_A_KIND)) {
-            return false;
+        if(getGameState().getNumRoundStage() <= 2) {
+            if (handValue.equals(HandRanks.ROYAL_FLUSH)) {
+                return false;
+            } else if (handValue.equals(HandRanks.STRAIGHT_FLUSH)) {
+                return false;
+            } else if (handValue.equals(HandRanks.FOUR_OF_A_KIND)) {
+                return false;
+            } else if (handValue.equals(HandRanks.FULL_HOUSE)) {
+                return false;
+            } else if (handValue.equals(HandRanks.FLUSH)) {
+                return false;
+            } else if (handValue.equals(HandRanks.STRAIGHT)) {
+                return false;
+            } else if (handValue.equals(HandRanks.THREE_OF_A_KIND)) {
+                return false;
+            }
+            return true;
         }
-        return !shouldFold();
+        return false;
     }
 
     @Override
     protected boolean shouldCheck() {
-        boolean hasDecentHand = evaluatePlayerHand().getValue() >= HandRanks.HIGH_CARD.getValue();
-        boolean hasDecentHand1 = evaluatePlayerHand().getValue() >= HandRanks.PAIR.getValue();
-        boolean hasDecentHand2 = evaluatePlayerHand().getValue() >= HandRanks.TWO_PAIR.getValue();
+        HandRanks handValue = evaluatePlayerHand();
+        boolean hasDecentHand = handValue.equals(HandRanks.HIGH_CARD);
+        boolean hasDecentHand1 = handValue.equals(HandRanks.PAIR);
+        boolean hasDecentHand2 = handValue.equals(HandRanks.TWO_PAIR);
+        boolean hasDecentHand3 = handValue.equals(HandRanks.THREE_OF_A_KIND);
 
-        boolean hasAnyDecent = false;
-        if (hasDecentHand == true || hasDecentHand1 == true || hasDecentHand2 == true) {
-            hasAnyDecent = true;
-            return true;
-        }
-        else {
-            return false;
-        }
+        return hasDecentHand || hasDecentHand1 || hasDecentHand2 || hasDecentHand3;
     }
 
     @Override
@@ -68,15 +78,15 @@ public class HenrysPlayer extends Player {
         } else if (handValue.equals(HandRanks.STRAIGHT_FLUSH)) {
             return false;
         } else if (handValue.equals(HandRanks.FOUR_OF_A_KIND)) {
-            return false;
+            return true;
         } else if (handValue.equals(HandRanks.FULL_HOUSE)) {
-            return false;
+            return true;
         } else if (handValue.equals(HandRanks.FLUSH)) {
-            return false;
+            return true;
         } else if (handValue.equals(HandRanks.STRAIGHT)) {
-            return false;
+            return true;
         } else if (handValue.equals(HandRanks.THREE_OF_A_KIND)) {
-            return false;
+            return true;
         }
         return !shouldCall();
     }
@@ -94,11 +104,22 @@ public class HenrysPlayer extends Player {
         boolean hasAnyStrong = false;
 
 
-
-
-        if (hasStrongHand == true || hasStrongHand1 == true || hasStrongHand2 == true || hasStrongHand3 == true || hasStrongHand4 == true || hasStrongHand5 == true) {
+        if (hasStrongHand || hasStrongHand1) {
             hasAnyStrong = true;
             RaiseCalled++;
+            raise(150);
+            return true;
+        }
+        if (hasStrongHand2 || hasStrongHand3) {
+            hasAnyStrong = true;
+            RaiseCalled++;
+            raise(70);
+            return true;
+        }
+        if (hasStrongHand4 || hasStrongHand5) {
+            hasAnyStrong = true;
+            RaiseCalled++;
+            raise(20);
             return true;
         }
         else {
@@ -114,13 +135,10 @@ public class HenrysPlayer extends Player {
         boolean hasHand1 = handValue.equals(HandRanks.STRAIGHT_FLUSH);
         boolean hasHand2 = handValue.equals(HandRanks.FOUR_OF_A_KIND);
         boolean hasHand3 = handValue.equals(HandRanks.FULL_HOUSE);
-        boolean hasHand4 = handValue.equals(HandRanks.STRAIGHT);
-        boolean hasHand5 = handValue.equals(HandRanks.THREE_OF_A_KIND);
-        boolean hasHand6 = handValue.equals(HandRanks.TWO_PAIR);
 
         boolean hasAnyHand = false;
         if(getGameState().isActiveBet()) {
-            if (hasHand == true || hasHand1 == true || hasHand2 == true || hasHand3 == true || hasHand4 == true || hasHand5 == true || hasHand6 == true && RaiseCalled == 3) {
+            if (hasHand || hasHand1 || hasHand2 || hasHand3 && RaiseCalled == 3) {
                 hasAnyHand = true;
                 return true;
             } else {
